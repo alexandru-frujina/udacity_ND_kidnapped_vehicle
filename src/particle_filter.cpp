@@ -53,7 +53,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
     particles.push_back(*particle);
   }
 
-  srand(time(0));
   is_initialized = true;
 }
 
@@ -234,8 +233,10 @@ void ParticleFilter::resample() {
   int index;
   double wMax = 0.0;
   std::vector<Particle> newParticles;
+  std::default_random_engine gen;
 
-  index = rand() % num_particles;
+  std::uniform_int_distribution<int> particle_index(0, num_particles - 1);
+  index = particle_index(gen);
 
   for (auto const& particle: particles)
   {
@@ -247,7 +248,8 @@ void ParticleFilter::resample() {
 
   for (int i = 0; i < num_particles; i++)
   {
-    beta = beta + (double)rand() / RAND_MAX * 2 * wMax;
+    std::uniform_real_distribution<double> random_weight(0.0, 2.0 * wMax);
+    beta += random_weight(gen);
 
     while (particles[index].weight < beta)
     {
